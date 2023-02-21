@@ -4,8 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.*;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.*;
@@ -17,7 +16,9 @@ public class AlertRabbit {
         try (Connection connection = getConnect(loadConfigFile())) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
-            JobDetail job = newJob(Rabbit.class).build();
+            JobDataMap data = new JobDataMap();
+            data.put("connection", connection);
+            JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
             int secondInterval = Integer.parseInt(loadConfigFile().getProperty("rabbit.interval"));
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(secondInterval)
@@ -60,15 +61,30 @@ public class AlertRabbit {
         return connection;
     }
 
+    static private void insert(Connection connection, long currentTimeMillis) {
+        try (var statement = connection.prepareStatement("""
+                INSERT INTO rabbit_schema.rabbit (created_date)
+                VALUES (?);
+                        """)) {
+            statement.setLong(1, System.currentTimeMillis());
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static class Rabbit implements Job {
 
         public Rabbit() {
-            System.out.println("con");
+            System.out.println(hashCode());
         }
 
         @Override
         public void execute(JobExecutionContext context) {
             System.out.println("Rabbit runs here ...");
+            Connection connection = (Connection) context.getJobDetail()
+                    .getJobDataMap().get("connection");
+            insert(connection, System.currentTimeMillis());
         }
     }
 }

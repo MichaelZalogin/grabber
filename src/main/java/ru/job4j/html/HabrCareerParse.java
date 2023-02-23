@@ -12,17 +12,14 @@ public class HabrCareerParse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
-    private static final int AMOUNT_PAGE = 10;
+    private static final int AMOUNT_PAGE = 1;
 
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
 
 
     public static void main(String[] args) throws IOException {
-
-        String pages;
-        for (int i = 1; i < AMOUNT_PAGE; i++) {
-            pages = String.format("%s?page=%d", PAGE_LINK, i);
-            Connection connection = Jsoup.connect(pages);
+        for (int i = 1; i <= AMOUNT_PAGE; i++) {
+            Connection connection = Jsoup.connect(String.format("%s?page=%d", PAGE_LINK, i));
             Document document = connection.get();
             Elements rows = document.select(".vacancy-card__inner");
             rows.forEach(row -> {
@@ -32,8 +29,24 @@ public class HabrCareerParse {
                 Element dateTimeElement = row.select(".vacancy-card__date").first();
                 Element dataTime = dateTimeElement.child(0);
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-                System.out.printf("%s, дата публикации: %s, %s%n", vacancyName, dataTime.attr("datetime"), link);
+                String description = retrieveDescription(link);
+                System.out.printf("%s, дата публикации: %s, %s%n%s%n", vacancyName, dataTime.attr("datetime"), link, description);
             });
         }
+    }
+
+    static private String retrieveDescription(String link) {
+        StringBuilder description = new StringBuilder();
+        try {
+            var connection = Jsoup.connect(link);
+            Document document = connection.get();
+            Elements rows = document.select(".style-ugc");
+            for (Element row : rows) {
+                description.append(row.text());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return description.toString();
     }
 }

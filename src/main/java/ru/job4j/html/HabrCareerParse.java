@@ -12,7 +12,7 @@ public class HabrCareerParse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
-    private static final int amountPage = 10;
+    private static final int AMOUNT_PAGE = 10;
 
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
 
@@ -20,7 +20,7 @@ public class HabrCareerParse {
     public static void main(String[] args) throws IOException {
 
         String pages;
-        for (int i = 1; i < amountPage; i++) {
+        for (int i = 1; i < AMOUNT_PAGE; i++) {
             pages = String.format("%s?page=%d", PAGE_LINK, i);
             Connection connection = Jsoup.connect(pages);
             Document document = connection.get();

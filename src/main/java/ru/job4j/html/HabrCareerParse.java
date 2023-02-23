@@ -30,7 +30,8 @@ public class HabrCareerParse {
                 Element dataTime = dateTimeElement.child(0);
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
                 String description = retrieveDescription(link);
-                System.out.printf("%s, дата публикации: %s, %s%n%s%n", vacancyName, dataTime.attr("datetime"), link, description);
+                System.out.printf("%s, дата публикации: %s, %s%n%s%n", vacancyName,
+                        dataTime.attr("datetime"), link, description);
             });
         }
     }

@@ -2,24 +2,23 @@ package ru.job4j.quartz;
 
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import ru.job4j.utils.ConnectionManager;
+import ru.job4j.utils.PropertiesUtil;
 
-import java.io.InputStream;
 import java.sql.*;
-import java.util.Properties;
-
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
     public static void main(String[] args) {
-        try (Connection connection = getConnect(loadConfigFile())) {
+        try (var connection = new ConnectionManager(new PropertiesUtil("database.properties")).open()) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
             data.put("connection", connection);
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
-            int secondInterval = Integer.parseInt(loadConfigFile().getProperty("rabbit.interval"));
+            int secondInterval = Integer.parseInt(new PropertiesUtil("rabbit.properties").get("rabbit.interval"));
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(secondInterval)
                     .repeatForever();
@@ -33,32 +32,6 @@ public class AlertRabbit {
         } catch (Exception se) {
             se.printStackTrace();
         }
-    }
-
-    static private Properties loadConfigFile() {
-        Properties config = new Properties();
-        try (InputStream in = AlertRabbit.class.getClassLoader()
-                .getResourceAsStream("rabbit.properties")) {
-            config.load(in);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-        return config;
-    }
-
-    static private Connection getConnect(Properties config) {
-        Connection connection;
-        try {
-            Class.forName(config.getProperty("driver"));
-            connection = DriverManager.getConnection(
-                    config.getProperty("url"),
-                    config.getProperty("login"),
-                    config.getProperty("password")
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return connection;
     }
 
     static private void insert(Connection connection, long currentTimeMillis) {

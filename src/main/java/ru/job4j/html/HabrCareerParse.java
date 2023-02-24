@@ -31,7 +31,7 @@ public class HabrCareerParse implements Parse {
         HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
         HabrCareerParse habrCareerParse = new HabrCareerParse(habrCareerDateTimeParser);
         List<Post> list = habrCareerParse.list(PAGE_LINK);
-        list.stream().forEach(System.out::println);
+        System.out.println(list);
     }
 
     static private String retrieveDescription(String link) {

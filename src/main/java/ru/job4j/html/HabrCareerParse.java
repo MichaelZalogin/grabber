@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.dao.PsqlStore;
 import ru.job4j.entity.Post;
 import ru.job4j.utils.*;
 
@@ -19,7 +20,7 @@ public class HabrCareerParse implements Parse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
-    private static final int AMOUNT_PAGE = 5;
+    private static final int AMOUNT_PAGE = 1;
 
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
 
@@ -31,7 +32,12 @@ public class HabrCareerParse implements Parse {
         HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
         HabrCareerParse habrCareerParse = new HabrCareerParse(habrCareerDateTimeParser);
         List<Post> list = habrCareerParse.list(PAGE_LINK);
-        System.out.println(list);
+        PsqlStore psqlStore = new PsqlStore("database.properties");
+        for (Post post : list) {
+            psqlStore.save(post);
+        }
+        System.out.println(psqlStore.findById(1));
+        System.out.println(psqlStore.findById(5));
     }
 
     static private String retrieveDescription(String link) {

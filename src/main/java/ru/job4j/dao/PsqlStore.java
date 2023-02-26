@@ -8,6 +8,7 @@ import ru.job4j.utils.PropertiesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PsqlStore implements Store {
 
@@ -63,7 +64,7 @@ public class PsqlStore implements Store {
     }
 
     @Override
-    public Post findById(int id) {
+    public Optional<Post> findById(int id) {
         Post post = null;
         try (var statement = cn.prepareStatement(
                 """
@@ -83,7 +84,7 @@ public class PsqlStore implements Store {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return post;
+        return Optional.ofNullable(post);
     }
 
     @Override

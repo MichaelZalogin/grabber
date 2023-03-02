@@ -32,7 +32,7 @@ public class HabrCareerParse implements Parse {
         HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
         HabrCareerParse habrCareerParse = new HabrCareerParse(habrCareerDateTimeParser);
         List<Post> list = habrCareerParse.list(PAGE_LINK);
-        PsqlStore psqlStore = new PsqlStore("database.properties");
+        PsqlStore psqlStore = new PsqlStore("application.properties");
         for (Post post : list) {
             psqlStore.save(post);
         }

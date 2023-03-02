@@ -6,19 +6,21 @@ import ru.job4j.utils.ConnectionManager;
 import ru.job4j.utils.PropertiesUtil;
 
 import java.sql.*;
+
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
     public static void main(String[] args) {
-        try (var connection = new ConnectionManager(new PropertiesUtil("database.properties")).open()) {
+        var readProperties = new PropertiesUtil("application.properties");
+        try (var connection = new ConnectionManager(readProperties).open()) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
             data.put("connection", connection);
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
-            int secondInterval = Integer.parseInt(new PropertiesUtil("rabbit.properties").get("rabbit.interval"));
+            int secondInterval = Integer.parseInt(readProperties.get("rabbit.interval"));
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(secondInterval)
                     .repeatForever();

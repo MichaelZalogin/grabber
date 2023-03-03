@@ -44,7 +44,7 @@ public class PsqlStore implements Store {
     public List<Post> getAll() {
         List<Post> posts = new ArrayList<>();
         try (var statement = cn.prepareStatement("""
-                    SELECT (id, title, link, description, created)
+                    SELECT id, title, link, description, created
                     FROM post_schema.post;
                 """, PreparedStatement.RETURN_GENERATED_KEYS)) {
             statement.executeQuery();

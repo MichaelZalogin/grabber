@@ -20,8 +20,6 @@ public class HabrCareerParse implements Parse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
-    private static final int AMOUNT_PAGE = 1;
-
     private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
 
     public HabrCareerParse(DateTimeParser dateTimeParser) {
@@ -31,13 +29,11 @@ public class HabrCareerParse implements Parse {
     public static void main(String[] args) {
         HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
         HabrCareerParse habrCareerParse = new HabrCareerParse(habrCareerDateTimeParser);
-        List<Post> list = habrCareerParse.list(PAGE_LINK);
-        PsqlStore psqlStore = new PsqlStore("application.properties");
+        List<Post> list = habrCareerParse.list(PAGE_LINK, 5);
+        PsqlStore psqlStore = new PsqlStore(new PropertiesUtil("application.properties"));
         for (Post post : list) {
             psqlStore.save(post);
         }
-        System.out.println(psqlStore.findById(1));
-        System.out.println(psqlStore.findById(5));
     }
 
     static private String retrieveDescription(String link) {
@@ -56,9 +52,9 @@ public class HabrCareerParse implements Parse {
     }
 
     @Override
-    public List<Post> list(String link) {
+    public List<Post> list(String link, int amountPage) {
         List<Post> posts = new ArrayList<>();
-        for (int i = 1; i <= AMOUNT_PAGE; i++) {
+        for (int i = 1; i <= amountPage; i++) {
             Connection connection = Jsoup.connect(String.format("%s?page=%d", link, i));
             try {
                 Document document = connection.get();

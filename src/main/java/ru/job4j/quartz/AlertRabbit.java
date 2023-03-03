@@ -2,11 +2,8 @@ package ru.job4j.quartz;
 
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import ru.job4j.utils.ConnectionManager;
-import ru.job4j.utils.PropertiesUtil;
-
+import ru.job4j.utils.*;
 import java.sql.*;
-
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
@@ -20,7 +17,7 @@ public class AlertRabbit {
             JobDataMap data = new JobDataMap();
             data.put("connection", connection);
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
-            int secondInterval = Integer.parseInt(readProperties.get("rabbit.interval"));
+            int secondInterval = Integer.parseInt(readProperties.get("time"));
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(secondInterval)
                     .repeatForever();

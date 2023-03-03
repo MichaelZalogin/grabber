@@ -14,9 +14,9 @@ public class PsqlStore implements Store {
 
     private Connection cn;
 
-    public PsqlStore(String propertyPath) {
-        var propertiesUtil = new PropertiesUtil(propertyPath);
-        cn = new ConnectionManager(propertiesUtil).open();
+    public PsqlStore(PropertiesUtil propertyPath) {
+
+        cn = new ConnectionManager(propertyPath).open();
     }
 
     @Override
